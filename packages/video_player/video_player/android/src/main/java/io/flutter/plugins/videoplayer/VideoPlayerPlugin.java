@@ -20,10 +20,16 @@ import io.flutter.plugins.videoplayer.Messages.PositionMessage;
 import io.flutter.plugins.videoplayer.Messages.TextureMessage;
 import io.flutter.plugins.videoplayer.Messages.VideoPlayerApi;
 import io.flutter.plugins.videoplayer.Messages.VolumeMessage;
+import io.flutter.plugins.videoplayer.Messages.StringMessage;
 import io.flutter.view.TextureRegistry;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Collections;
+
 import javax.net.ssl.HttpsURLConnection;
+
+import static java.util.Collections.singletonList;
 
 /** Android platform implementation of the VideoPlayerPlugin. */
 public class VideoPlayerPlugin implements FlutterPlugin, VideoPlayerApi {
@@ -138,6 +144,7 @@ public class VideoPlayerPlugin implements FlutterPlugin, VideoPlayerApi {
               handle,
               "asset:///" + assetLookupKey,
               null,
+              null,
               options);
     } else {
       player =
@@ -145,7 +152,8 @@ public class VideoPlayerPlugin implements FlutterPlugin, VideoPlayerApi {
               flutterState.applicationContext,
               eventChannel,
               handle,
-              arg.getUri(),
+              arg.getVideoUri(),
+              arg.getAudioUri(),
               arg.getFormatHint(),
               options);
     }
@@ -180,6 +188,11 @@ public class VideoPlayerPlugin implements FlutterPlugin, VideoPlayerApi {
   public void play(TextureMessage arg) {
     VideoPlayer player = videoPlayers.get(arg.getTextureId());
     player.play();
+  }
+
+  public void changeVideoUrl(StringMessage arg) {
+    VideoPlayer player = videoPlayers.get(arg.getTextureId());
+    player.changeVideoUrl(flutterState.applicationContext, arg.getMessage());
   }
 
   public PositionMessage position(TextureMessage arg) {

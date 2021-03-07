@@ -35,11 +35,13 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
         message.packageName = dataSource.package;
         break;
       case DataSourceType.network:
-        message.uri = dataSource.uri;
+        message.videoUri = dataSource.videoUri;
+        message.audioUri = dataSource.audioUri;
         message.formatHint = _videoFormatStringMap[dataSource.formatHint];
         break;
       case DataSourceType.file:
-        message.uri = dataSource.uri;
+        message.videoUri = dataSource.videoUri;
+        message.audioUri = dataSource.audioUri;
         break;
     }
 
@@ -92,6 +94,13 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
     PositionMessage response =
         await _api.position(TextureMessage()..textureId = textureId);
     return Duration(milliseconds: response.position!);
+  }
+
+  @override
+  Future<void> changeVideoUrl(int textureId, String url) async {
+    return _api.changeVideoUrl(StringMessage()
+    ..textureId = textureId
+    ..message = url);
   }
 
   @override

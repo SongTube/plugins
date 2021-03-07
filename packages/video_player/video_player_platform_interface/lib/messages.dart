@@ -24,14 +24,16 @@ class TextureMessage {
 
 class CreateMessage {
   String? asset;
-  String? uri;
+  String? videoUri;
+  String? audioUri;
   String? packageName;
   String? formatHint;
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
     pigeonMap['asset'] = asset;
-    pigeonMap['uri'] = uri;
+    pigeonMap['videoUri'] = videoUri;
+    pigeonMap['audioUri'] = audioUri;
     pigeonMap['packageName'] = packageName;
     pigeonMap['formatHint'] = formatHint;
     return pigeonMap;
@@ -41,7 +43,8 @@ class CreateMessage {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
     return CreateMessage()
       ..asset = pigeonMap['asset'] as String?
-      ..uri = pigeonMap['uri'] as String?
+      ..videoUri = pigeonMap['videoUris'] as String?
+      ..audioUri = pigeonMap['audioUri'] as String?
       ..packageName = pigeonMap['packageName'] as String?
       ..formatHint = pigeonMap['formatHint'] as String?;
   }
@@ -120,6 +123,25 @@ class PositionMessage {
     return PositionMessage()
       ..textureId = pigeonMap['textureId'] as int?
       ..position = pigeonMap['position'] as int?;
+  }
+}
+
+class StringMessage {
+  int? textureId;
+  String? message;
+
+  Object encode() {
+    final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
+    pigeonMap['textureId'] = textureId;
+    pigeonMap['message'] = message;
+    return pigeonMap;
+  }
+
+  static StringMessage decode(Object message) {
+    final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
+    return StringMessage()
+      ..textureId = pigeonMap['textureId'] as int?
+      ..message = pigeonMap['message'] as String?;
   }
 }
 
@@ -294,6 +316,31 @@ class VideoPlayerApi {
     final Object encoded = arg.encode();
     const BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.VideoPlayerApi.play', StandardMessageCodec());
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(encoded) as Map<Object?, Object?>?;
+    if (replyMap == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+        details: null,
+      );
+    } else if (replyMap['error'] != null) {
+      final Map<Object?, Object?> error =
+          replyMap['error'] as Map<Object?, Object?>;
+      throw PlatformException(
+        code: error['code'] as String,
+        message: error['message'] as String?,
+        details: error['details'],
+      );
+    } else {
+      // noop
+    }
+  }
+
+  Future<void> changeVideoUrl(StringMessage arg) async {
+    final Object encoded = arg.encode();
+    const BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.VideoPlayerApi.changeVideoUrl', StandardMessageCodec());
     final Map<Object?, Object?>? replyMap =
         await channel.send(encoded) as Map<Object?, Object?>?;
     if (replyMap == null) {

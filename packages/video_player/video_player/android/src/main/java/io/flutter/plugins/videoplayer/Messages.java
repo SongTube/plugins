@@ -6,7 +6,10 @@ package io.flutter.plugins.videoplayer;
 import io.flutter.plugin.common.BasicMessageChannel;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.StandardMessageCodec;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /** Generated class from Pigeon. */
 @SuppressWarnings("unused")
@@ -53,15 +56,29 @@ public class Messages {
       this.asset = setterArg;
     }
 
-    private String uri;
+    // Video
+    private String videoUri;
 
-    public String getUri() {
-      return uri;
+    public String getVideoUri() {
+      return videoUri;
     }
 
-    public void setUri(String setterArg) {
-      this.uri = setterArg;
+    public void setVideoUri(String setterArg) {
+      this.videoUri = setterArg;
     }
+    // -----
+
+    // Audio
+    private String audioUri;
+
+    public String getAudioUri() {
+      return audioUri;
+    }
+
+    public void setAudioUri(String setterArg) {
+      this.audioUri = setterArg;
+    }
+    // -----
 
     private String packageName;
 
@@ -86,7 +103,8 @@ public class Messages {
     HashMap toMap() {
       HashMap<String, Object> toMapResult = new HashMap<>();
       toMapResult.put("asset", asset);
-      toMapResult.put("uri", uri);
+      toMapResult.put("videoUri", videoUri);
+      toMapResult.put("audioUri", audioUri);
       toMapResult.put("packageName", packageName);
       toMapResult.put("formatHint", formatHint);
       return toMapResult;
@@ -96,8 +114,18 @@ public class Messages {
       CreateMessage fromMapResult = new CreateMessage();
       Object asset = map.get("asset");
       fromMapResult.asset = (String) asset;
-      Object uri = map.get("uri");
-      fromMapResult.uri = (String) uri;
+
+      // Video
+      Object videoUri = map.get("videoUri");
+
+      fromMapResult.videoUri = (String) videoUri;
+      // ----
+
+      // Audio
+      Object audioUri = map.get("audioUri");
+      fromMapResult.audioUri = (String) audioUri;
+      // ----
+
       Object packageName = map.get("packageName");
       fromMapResult.packageName = (String) packageName;
       Object formatHint = map.get("formatHint");
@@ -278,6 +306,51 @@ public class Messages {
   }
 
   /** Generated class from Pigeon that represents data sent in messages. */
+  public static class StringMessage {
+    private Long textureId;
+
+    public Long getTextureId() {
+      return textureId;
+    }
+
+    public void setTextureId(Long setterArg) {
+      this.textureId = setterArg;
+    }
+
+    private String message;
+
+    public String getMessage() {
+      return message;
+    }
+
+    public void setMessage(String setterArg) {
+      this.message = setterArg;
+    }
+
+    HashMap toMap() {
+      HashMap<String, Object> toMapResult = new HashMap<>();
+      toMapResult.put("textureId", textureId);
+      toMapResult.put("message", message);
+      return toMapResult;
+    }
+
+    static StringMessage fromMap(HashMap map) {
+      StringMessage fromMapResult = new StringMessage();
+      Object textureId = map.get("textureId");
+      fromMapResult.textureId =
+              (textureId == null)
+                      ? null
+                      : ((textureId instanceof Integer) ? (Integer) textureId : (Long) textureId);
+      Object message = map.get("message");
+      fromMapResult.message =
+              (message == null)
+                      ? null
+                      : (String) message;
+      return fromMapResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
   public static class MixWithOthersMessage {
     private Boolean mixWithOthers;
 
@@ -318,6 +391,8 @@ public class Messages {
     void setPlaybackSpeed(PlaybackSpeedMessage arg);
 
     void play(TextureMessage arg);
+
+    void changeVideoUrl(StringMessage arg);
 
     PositionMessage position(TextureMessage arg);
 
@@ -515,6 +590,30 @@ public class Messages {
                 }
                 reply.reply(wrapped);
               });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+                new BasicMessageChannel<>(
+                        binaryMessenger,
+                        "dev.flutter.pigeon.VideoPlayerApi.changeVideoUrl",
+                        new StandardMessageCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+                  (message, reply) -> {
+                    HashMap<String, HashMap> wrapped = new HashMap<>();
+                    try {
+                      @SuppressWarnings("ConstantConditions")
+                      StringMessage input = StringMessage.fromMap((HashMap) message);
+                      api.changeVideoUrl(input);
+                      wrapped.put("result", null);
+                    } catch (Exception exception) {
+                      wrapped.put("error", wrapError(exception));
+                    }
+                    reply.reply(wrapped);
+                  });
         } else {
           channel.setMessageHandler(null);
         }

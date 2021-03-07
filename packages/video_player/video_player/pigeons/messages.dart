@@ -28,13 +28,19 @@ class PositionMessage {
 
 class CreateMessage {
   String asset;
-  String uri;
+  List<String> videoUris;
+  String audioUri;
   String packageName;
   String formatHint;
 }
 
 class MixWithOthersMessage {
   bool mixWithOthers;
+}
+
+class StringMessage {
+  int textureId;
+  String message;
 }
 
 @HostApi(dartHostTestHandler: 'TestHostVideoPlayerApi')
@@ -46,6 +52,7 @@ abstract class VideoPlayerApi {
   void setVolume(VolumeMessage msg);
   void setPlaybackSpeed(PlaybackSpeedMessage msg);
   void play(TextureMessage msg);
+  void changeVideoUrl(StringMessage arg);
   PositionMessage position(TextureMessage msg);
   void seekTo(PositionMessage msg);
   void pause(TextureMessage msg);

@@ -181,8 +181,8 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   /// The name of the asset is given by the [dataSource] argument and must not be
   /// null. The [package] argument must be non-null when the asset comes from a
   /// package and null otherwise.
-  VideoPlayerController.asset(this.dataSource,
-      {this.package, this.closedCaptionFile, this.videoPlayerOptions})
+  VideoPlayerController.asset(this.videoDataSource, {this.audioDataSource,
+      this.package, this.closedCaptionFile, this.videoPlayerOptions})
       : dataSourceType = DataSourceType.asset,
         formatHint = null,
         super(VideoPlayerValue(duration: Duration.zero));
@@ -194,8 +194,8 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   /// null.
   /// **Android only**: The [formatHint] option allows the caller to override
   /// the video format detection code.
-  VideoPlayerController.network(this.dataSource,
-      {this.formatHint, this.closedCaptionFile, this.videoPlayerOptions})
+  VideoPlayerController.network(this.videoDataSource, {this.audioDataSource,
+      this.formatHint, this.closedCaptionFile, this.videoPlayerOptions})
       : dataSourceType = DataSourceType.network,
         package = null,
         super(VideoPlayerValue(duration: Duration.zero));
@@ -204,9 +204,9 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   ///
   /// This will load the file from the file-URI given by:
   /// `'file://${file.path}'`.
-  VideoPlayerController.file(File file,
-      {this.closedCaptionFile, this.videoPlayerOptions})
-      : dataSource = 'file://${file.path}',
+  VideoPlayerController.file(File file, {this.audioDataSource,
+      this.closedCaptionFile, this.videoPlayerOptions})
+      : videoDataSource = 'file://${file.path}',
         dataSourceType = DataSourceType.file,
         package = null,
         formatHint = null,
@@ -214,7 +214,11 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
 
   /// The URI to the video file. This will be in different formats depending on
   /// the [DataSourceType] of the original video.
-  final String dataSource;
+  final String videoDataSource;
+
+  /// The URI to the audio file. For the momment only network audio file
+  /// is supported.
+  final String? audioDataSource;
 
   /// **Android only**. Will override the platform's generic file format
   /// detection with whatever is set here.
@@ -265,21 +269,23 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
       case DataSourceType.asset:
         dataSourceDescription = DataSource(
           sourceType: DataSourceType.asset,
-          asset: dataSource,
+          asset: videoDataSource,
           package: package,
         );
         break;
       case DataSourceType.network:
         dataSourceDescription = DataSource(
           sourceType: DataSourceType.network,
-          uri: dataSource,
+          videoUri: videoDataSource,
+          audioUri: audioDataSource,
           formatHint: formatHint,
         );
         break;
       case DataSourceType.file:
         dataSourceDescription = DataSource(
           sourceType: DataSourceType.file,
-          uri: dataSource,
+          videoUri: videoDataSource,
+          audioUri: audioDataSource
         );
         break;
     }
@@ -375,6 +381,14 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   Future<void> play() async {
     value = value.copyWith(isPlaying: true);
     await _applyPlayPause();
+  }
+
+  /// Changes the current source video index of the interal ExoPlayer
+  Future<void> changeVideoUrl(String url) async {
+    if (!value.isInitialized || _isDisposed) {
+      return;
+    }
+    await _videoPlayerPlatform.changeVideoUrl(_textureId, url);
   }
 
   /// Sets whether or not the video should loop after playing once. See also

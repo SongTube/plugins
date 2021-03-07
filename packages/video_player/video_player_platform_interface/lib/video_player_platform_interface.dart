@@ -85,6 +85,11 @@ abstract class VideoPlayerPlatform {
     throw UnimplementedError('play() has not been implemented.');
   }
 
+  /// Changes the stream source to a specified index
+  Future<void> changeVideoUrl(int textureId, String url) {
+    throw UnimplementedError('changeVideoUrl() has not been implemented');
+  }
+
   /// Stops the video playback.
   Future<void> pause(int textureId) {
     throw UnimplementedError('pause() has not been implemented.');
@@ -136,8 +141,11 @@ class DataSource {
   ///
   /// The [sourceType] is always required.
   ///
-  /// The [uri] argument takes the form of `'https://example.com/video.mp4'` or
+  /// The [videoUri] argument takes the form of `'https://example.com/video.mp4'` or
   /// `'file://${file.path}'`.
+  /// 
+  /// The [audioUri] argument takes the form of `'https://example.com/video.mp4'`,
+  /// only from network for the momment.
   ///
   /// The [formatHint] argument can be null.
   ///
@@ -147,7 +155,8 @@ class DataSource {
   /// package and null otherwise.
   DataSource({
     required this.sourceType,
-    this.uri,
+    this.videoUri,
+    this.audioUri,
     this.formatHint,
     this.asset,
     this.package,
@@ -163,7 +172,13 @@ class DataSource {
   ///
   /// This will be in different formats depending on the [DataSourceType] of
   /// the original video.
-  final String? uri;
+  final String? videoUri;
+
+  /// The URI to the network audio stream
+  ///
+  /// If you add this, the ExoPlayer will load and mix the current video
+  /// with this audio source and sync them
+  final String? audioUri;
 
   /// **Android only**. Will override the platform's generic file format
   /// detection with whatever is set here.
